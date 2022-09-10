@@ -1,0 +1,315 @@
+---
+title: "Template for t-Test"
+author: ""
+date: ''
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+editor_options: 
+  chunk_output_type: inline
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(haven)
+library(moments)
+library(ggpubr)
+df <- read_sav("") #directory
+```
+
+# Testing Assumptions
+
+## Summary statistics
+
+### Template
+
+```{r}
+group_by(df, group) %>%
+  summarise(
+    count = n(),
+    
+    mean = unlist(lapply(list(variable1_name = variable1, 
+                              variable2_name = variable2), 
+                         mean)),
+    
+    sd = unlist(lapply(list(variable1, 
+                            variable2),  
+                       sd)),
+    
+    skwness = unlist(lapply(list(
+    variable1,
+    variable2),
+    skewness)),
+    
+    kurtsis = unlist(lapply(list(
+    variable1,
+    variable2),
+    kurtosis)),
+    
+    variables = c(names(mean))
+  )
+```
+
+### Example
+
+```{r}
+group_by(df, Country) %>%
+  summarise(
+    count = n(),
+    
+    mean = unlist(lapply(list(Seeking_Help = Econ_HLP, 
+                              Investing = Econ_INV, 
+                              Additional_Work = Econ_WRK,
+                              Traditional_Value = Econ_TVS,
+                              Saving = Econ_SVE), 
+                         mean)),
+    
+    sd = unlist(lapply(list(Econ_HLP, 
+                            Econ_INV, 
+                            Econ_WRK,
+                            Econ_TVS,
+                            Econ_SVE), 
+                       sd)),
+    
+    skwness = unlist(lapply(list(
+    Econ_HLP,
+    Econ_INV,
+    Econ_WRK,
+    Econ_TVS,
+    Econ_SVE),
+    skewness)),
+    
+    kurtsis = unlist(lapply(list(
+    Econ_HLP,
+    Econ_INV,
+    Econ_WRK,
+    Econ_TVS,
+    Econ_SVE),
+    kurtosis)),
+    
+    variables = c(names(mean))
+  )
+```
+
+skewness (and kurtosis) without dplyr:
+
+```{r}
+skwness = unlist(lapply(list(
+    df$variable[which(df$group == "group1")], 
+    df$variable[which(df$Country == "group2")]
+    ), 
+    skewness))
+```
+
+## Visualization
+
+### Template
+
+```{r}
+ggboxplot(df, x = "group", y = c("variable1", "variable2"), 
+          color = "group", palette = c("#00AFBB", "#E7B800"),
+        ylab = c("variable1", "variable2"), xlab = "group")
+```
+
+### Example
+
+```{r}
+
+#box plot
+
+ggboxplot(df, x = "Country", y = c("Econ_HLP", "Econ_INV", "Econ_WRK", "Econ_TVS", "Econ_SVE"), 
+          color = "Country", palette = c("#00AFBB", "#E7B800"),
+        ylab = c("Econ_HLP", "Econ_INV", "Econ_WRK", "Econ_TVS", "Econ_SVE"), xlab = "Country")
+
+```
+
+## Shapiro-Wilk Normality Test (N < 100)
+
+sensitive. use with caution.
+
+**for multiple variables:**
+
+### Template
+
+```{r}
+# Shapiro-Wilk normality test for group 1
+
+shapiro_g1 <- lapply(list(
+            variable1_name = df$variable1[which(df$group == "group1")], 
+            variable2_name = df$variable2[which(df$group == "group1")]), 
+                         shapiro.test)
+
+# Shapiro-Wilk normality test for group 2
+shapiro_g1 <- lapply(list(
+            variable1_name = df$variable1[which(df$group == "group2")], 
+            variable2_name = df$variable2[which(df$group == "group2")]), 
+                         shapiro.test)
+
+#p-value should be greater than 0.05
+```
+
+
+### Example
+
+```{r}
+# Shapiro-Wilk normality test for group 1
+
+shapiro_g1 <- lapply(list(
+            Helping = df$Econ_HLP[which(df$Country == "Iran")], 
+            Investing = df$Econ_INV[which(df$Country == "Iran")], 
+            Additional_work = df$Econ_WRK[which(df$Country == "Iran")],
+            Traditional_Value = df$Econ_TVS[which(df$Country == "Iran")],
+            Saving = df$Econ_SVE[which(df$Country == "Iran")]), 
+                         shapiro.test)
+
+# Shapiro-Wilk normality test for group 2
+shapiro_g2 <- lapply(list(
+            Helping = df$Econ_HLP[which(df$Country == "Russia")], 
+            Investing = df$Econ_INV[which(df$Country == "Russia")], 
+            Additional_work = df$Econ_WRK[which(df$Country == "Russia")],
+            Traditional_Value = df$Econ_TVS[which(df$Country == "Russia")],
+            Saving = df$Econ_SVE[which(df$Country == "Russia")]), 
+                         shapiro.test)
+
+#p-value should be greater than 0.05
+```
+
+**for one variable:**
+
+```{r}
+# Shapiro-Wilk normality test for group 1
+with(df, shapiro.test(variable1[group == "group1"]))
+
+# Shapiro-Wilk normality test for group 2
+with(df, shapiro.test(variable1[group == "group2"]))
+```
+
+## Two-sample Kolmogorov-Smirnov Normality Test (N > 100)
+
+sensitive. use with caution.
+
+**for multiple variables:**
+
+### Template
+
+```{r}
+kstest <- lapply(list(variable1 ~ group, 
+            variable2 ~ group), 
+            ks.test, data = df)
+```
+
+
+### Example
+
+```{r}
+kstest <- lapply(list(Econ_HLP ~ Country, 
+            Econ_INV ~ Country, 
+            Econ_WRK ~ Country,
+            Econ_TVS ~ Country,
+            Econ_SVE ~ Country), 
+                         ks.test, data = df)
+```
+
+
+**for one variable:**
+
+```{r}
+with(df, ks.test(variable1[group == "group1"], variable1[group == "group2"]))
+```
+
+## Homogeneity in Variances
+
+**for multiple variables:**
+
+### Template
+
+```{r}
+ftest <- lapply(list(variable1 ~ group, 
+            variable2 ~ group), 
+            var.test, data = df)
+```
+
+### Example
+
+```{r}
+
+ftest <- lapply(list(Econ_HLP ~ Country, 
+            Econ_INV ~ Country, 
+            Econ_WRK ~ Country,
+            Econ_TVS ~ Country,
+            Econ_SVE ~ Country), 
+                         var.test, data = df)
+ftest
+
+#equal variances is assumed if p is greater than 0.05
+```
+
+**for one variable:**
+
+```{r}
+ftest <- var.test(variable1 ~ group, data = df)
+ftest
+
+#equal variances is assumed if p is greater than 0.05
+```
+
+# t-test
+
+**for multiple variables:**
+
+## Template
+
+```{r}
+
+result <- lapply(list(
+            variable1 ~ group, 
+            variable2 ~ group), 
+                 t.test, 
+                 data = df,
+                 alternative = "two.sided", #other values: "greater", "less"
+                 paired = FALSE, #choose whether it's independent sample or one sample t-test
+                 var.equal = FALSE, #true if assumption of homoscedasticity is met
+                 conf.level = .95
+                 )
+result
+```
+
+## Example
+
+```{r}
+
+result <- lapply(list(
+            Econ_HLP ~ Country, 
+            Econ_INV ~ Country, 
+            Econ_WRK ~ Country,
+            Econ_TVS ~ Country,
+            Econ_SVE ~ Country), 
+                 t.test, 
+                 data = df,
+                 alternative = "two.sided", #other values: "greater", "less"
+                 paired = FALSE, #choose whether it's independent sample or one sample t-test
+                 var.equal = FALSE, #true if assumption of homoscedasticity is met
+                 conf.level = .95
+                 )
+result
+```
+
+**for one variable:**
+
+```{r}
+result <- t.test(variable1 ~ group, #numeric vectors, or fitted linear model objects (inheriting from class "lm").
+       data = df,         
+       alternative = "two.sided", #other values: "greater", "less"
+       paired = FALSE, #choose whether it's independent sample or one sample t-test
+       var.equal = FALSE, #true if assumption of homoscedasticity is met
+       conf.level = .95,
+       ) 
+```
+

@@ -1,0 +1,82 @@
+---
+title: "Template for Multiple Linear Regression"
+author: "Elaheh Khezri"
+date: ''
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+editor_options: 
+  chunk_output_type: inline
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Packages and data:
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+library(haven)
+library(broom)
+
+df <- read_sav("/Users/mac/Desktop/HSE/IR_Sanctions_Data/Analysis/Sanctions/Combined_RU-IR.sav")
+```
+
+# Regression model
+
+```{r}
+my_lm <- function(df) {
+  summary(lm(Econ_HLP ~ F_REFR + F_SPIRIT + F_PA + F_FAMILY + F_SOCIAL, data = df))
+}
+
+models = by(df, df$Country, my_lm)
+
+models$Iran
+```
+
+another method:
+
+produces neat tables
+better for when there are a lot of groups.
+
+```{r}
+
+by_country <- group_by(df, Country)
+
+do(
+  by_country,
+  glance(lm(Econ_HLP ~ F_REFR + F_SPIRIT + F_PA + F_FAMILY + F_SOCIAL, data = .))
+)
+
+do(
+  by_country,
+  tidy(lm(Econ_HLP ~ F_REFR + F_SPIRIT + F_PA + F_FAMILY + F_SOCIAL, data = .))
+)
+
+```
+
+
+# Assumptions
+
+## Linearity
+
+One models:
+
+```{r}
+plot(model, 1)
+
+#the red line should be approximately horizontal at zero. The presence of a pattern may indicate a problem with some aspect of the linear model.
+```
+
+Multiple models:
+
+```{r}
+
+```
+
+

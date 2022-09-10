@@ -1,0 +1,41 @@
+---
+title: "Template for Running Confirmatory Factor Analysis"
+author: "Elaheh Khezri"
+date: ''
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+editor_options: 
+  chunk_output_type: inline
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(lavaan)
+
+df <- read.csv("")
+
+variables_all <- df[0:0] #replace zero with variable index
+
+#if some varibales, for example originals of reverse-coded variables need to be excluded:
+variables.n <- names(variables_all[, !names(variables_all) %in% c("","")]) #the vector contains the name of variables that need to be removed
+
+variables <- df[variables.n]
+
+model <- '
+facotor1=~
+factor2=~
+'
+
+fit_model <- cfa(model, data=variables, meanstructure = TRUE)
+summary(fit_model, fit.measures=TRUE, standardized=TRUE)
+```
+
+

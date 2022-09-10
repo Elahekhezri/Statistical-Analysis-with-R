@@ -1,0 +1,181 @@
+---
+title: "Template for Multiple Group Confirmatory Factor Analysis"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# CFA with Both Groups Combined
+
+```{r}
+library(lavaan)
+library(rio)
+c_data <- import("")
+```
+
+```{r}
+overall.model <- "
+factor =~ x + y
+"
+
+```
+
+```{r}
+overall.fit <- cfa(model = overall.model,
+                   data = c_data,
+                   estimator = "DWLS",
+                   meanstructure = TRUE)
+
+sum_overall_fit <- summary(overall.fit, rsquare = TRUE, fit.measures=TRUE, standardized=TRUE)
+sum_overall_fit
+```
+
+**Table of fit indices**
+
+```{r}
+library(knitr)
+table_fit <- matrix(NA, nrow = 9, ncol = 7)
+colnames(table_fit) = c("Model", "X2", "df", "CFI", "RMSEA", "SRMR", "TLI")
+table_fit[1, ] <- c("Overall Model", round(fitmeasures(overall.fit, 
+                                                 c("chisq", "df", "cfi",
+                                                   "rmsea", "srmr", "tli")),3))
+kable(table_fit)
+```
+
+**Plot**
+
+```{r}
+library(semPlot)
+semPaths(overall.fit, 
+         whatLabels = "std",
+         sizeMan = 5, sizeMan2 = 2, sizeLat = 7, sizeLat2 = 3, sizeInt = 1, nCharNodes = 20,
+         layout = "tree")
+```
+
+# CFA for Each Group Separately
+
+### Iran Data Fit
+
+```{r}
+ir.fit <- cfa(model = overall.model,
+               data = c_data[c_data$Country == "IR" , ],
+               estimator = "DWLS",
+               meanstructure = TRUE)
+sum_ir_fit <- summary(ir.fit,
+        standardized = TRUE, 
+        rsquare = TRUE, 
+        fit.measure = TRUE)
+sum_ir_fit
+```
+
+### Russia Data fit
+
+```{r}
+ru.fit <- cfa(model = overall.model,
+               data = c_data[c_data$Country == "RU" , ],
+               estimator = "DWLS",
+               meanstructure = TRUE)
+sum_ru_fit <- summary(ru.fit,
+        standardized = TRUE, 
+        rsquare = TRUE, 
+        fit.measure = TRUE)
+sum_ru_fit
+```
+
+### **Comparison**
+
+```{r}
+table_fit[2, ] <- c("Iran Model", round(fitmeasures(ir.fit, 
+                                                 c("chisq", "df", "cfi",
+                                                   "rmsea", "srmr", "tli")),3))
+table_fit[3, ] <- c("Russia Model", round(fitmeasures(ru.fit, 
+                                                 c("chisq", "df", "cfi",
+                                                   "rmsea", "srmr", "tli")),3))
+kable(table_fit)
+```
+
+# CFA for Nested Groups
+
+## Configural invariance
+
+```{r}
+configural.fit <- cfa(model = overall.model,
+                      data = c_data,
+                      meanstructure = TRUE,
+                      estimator = "DWLS",
+                      group = "Country")
+sum_conf <- summary(configural.fit,
+        standardized = TRUE, 
+        rsquare = TRUE, 
+        fit.measure = TRUE)
+sum_conf
+
+table_fit[4, ] <- c("Configural Model", round(fitmeasures(configural.fit, 
+                                                 c("chisq", "df", "cfi",
+                                                   "rmsea", "srmr", "tli")),3))
+kable(table_fit)
+```
+
+## Metric Invariance
+
+```{r}
+metric.fit <- cfa(model = overall.model,
+                  data = c_data,
+                  meanstructure = TRUE,
+                  estimator = "DWLS",
+                  group = "Country",
+                  group.equal = c("loadings"))
+sum_metric <- summary(metric.fit,
+        standardized = TRUE, 
+        rsquare = TRUE, 
+        fit.measure = TRUE)
+sum_metric
+table_fit[5, ] <- c("Metric Model", round(fitmeasures(metric.fit, 
+                                                 c("chisq", "df", "cfi",
+                                                   "rmsea", "srmr", "tli")),3))
+kable(table_fit)
+```
+
+## Scalar Invariance
+
+```{r}
+scalar.fit <- cfa(model = overall.model,
+                  data = c_data,
+                  estimator = "DWLS",
+                  meanstructure = TRUE,
+                  group = "Country",
+                  group.equal = c("loadings", "intercepts"))
+summary(scalar.fit,
+        standardized = TRUE, 
+        rsquare = TRUE, 
+        fit.measure = TRUE)
+table_fit[6, ] <- c("Scalar Model", round(fitmeasures(scalar.fit, 
+                                                 c("chisq", "df", "cfi",
+                                                   "rmsea", "srmr", "tli")),3))
+kable(table_fit)
+```
+
+## Strict (Error) Invariance
+
+```{r}
+strict.fit <- cfa(model = overall.model,
+                  data = c_data,
+                  meanstructure = TRUE,
+                  estimator = "DWLS",
+                  group = "Country",
+                  group.equal = c("loadings", "intercepts", "residuals"))
+summary(strict.fit,
+        standardized = TRUE, 
+        rsquare = TRUE, 
+        fit.measure = TRUE)
+table_fit[7, ] <- c("Strict Model", round(fitmeasures(strict.fit, 
+                                                 c("chisq", "df", "cfi",
+                                                   "rmsea", "srmr", "tli")),3))
+kable(table_fit)
+```

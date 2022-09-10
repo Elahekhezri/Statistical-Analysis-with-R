@@ -1,0 +1,57 @@
+---
+title: "Template for Mediation Analysis"
+author: "Elaheh Khezri"
+date: ''
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+editor_options: 
+  chunk_output_type: inline
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading dataframes and packages:
+
+```{r}
+library(haven)
+library(mediation)
+df <- read.csv("")
+df <- na.omit(df)
+```
+
+# Paths
+
+```{r}
+
+#c path, x predicts y
+cpath = lm(y ~ x, data = df) #y ~ x replaced with variables
+summary(cpath)
+
+#a path, x predicts m
+apath = lm(m ~ x, data = df) #m ~ x replaced with variables
+summary(apath)
+
+#b path, m predicts y with x
+
+bpath = lm(Gy ~ x + m, data = df) # y ~ x + m
+summary(bpath)
+
+```
+
+
+# Results and Confidence Intervals
+
+```{r}
+
+results <- mediate(apath, bpath, treat=, mediator=,
+                   boot=TRUE, sims=1000)
+summary(results)
+
+```

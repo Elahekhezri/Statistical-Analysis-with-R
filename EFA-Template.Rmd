@@ -1,0 +1,32 @@
+---
+title: "Template for Running Exploratory Factor Analysis"
+author: "Elaheh Khezri"
+date: '2022-08-07'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(rio)
+library(haven)
+library(psych)
+library(GPArotation)
+
+
+df <- read_sav("")
+
+#in case we want to exclude a variable:
+
+data <- subset(df, select = -c(Country))
+
+fa.parallel(data)
+
+
+EFA_fit <- fa(data, #data
+              nfactors = 5, #number of factors
+              rotate = "oblimin", #rotation
+              fm = "ml") #math
+```
