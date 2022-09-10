@@ -20,7 +20,7 @@ df <- read_sav("")
 
 #in case we want to exclude a variable:
 
-data <- subset(df, select = -c(Country))
+data <- subset(df, select = -c(variable))
 
 fa.parallel(data)
 
