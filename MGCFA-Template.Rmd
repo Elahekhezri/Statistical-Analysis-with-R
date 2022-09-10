@@ -60,41 +60,41 @@ semPaths(overall.fit,
 
 # CFA for Each Group Separately
 
-### Iran Data Fit
+### Group 1 Data Fit
 
 ```{r}
-ir.fit <- cfa(model = overall.model,
-               data = c_data[c_data$Country == "IR" , ],
+g1.fit <- cfa(model = overall.model,
+               data = c_data[c_data$group == "g1" , ],
                estimator = "DWLS",
                meanstructure = TRUE)
-sum_ir_fit <- summary(ir.fit,
+sum_g1_fit <- summary(g1.fit,
         standardized = TRUE, 
         rsquare = TRUE, 
         fit.measure = TRUE)
-sum_ir_fit
+sum_g1_fit
 ```
 
-### Russia Data fit
+### Group 2 Data fit
 
 ```{r}
-ru.fit <- cfa(model = overall.model,
+g2.fit <- cfa(model = overall.model,
                data = c_data[c_data$Country == "RU" , ],
                estimator = "DWLS",
                meanstructure = TRUE)
-sum_ru_fit <- summary(ru.fit,
+sum_g2_fit <- summary(g2.fit,
         standardized = TRUE, 
         rsquare = TRUE, 
         fit.measure = TRUE)
-sum_ru_fit
+sum_g2_fit
 ```
 
 ### **Comparison**
 
 ```{r}
-table_fit[2, ] <- c("Iran Model", round(fitmeasures(ir.fit, 
+table_fit[2, ] <- c("Group 1 Model", round(fitmeasures(g1.fit, 
                                                  c("chisq", "df", "cfi",
                                                    "rmsea", "srmr", "tli")),3))
-table_fit[3, ] <- c("Russia Model", round(fitmeasures(ru.fit, 
+table_fit[3, ] <- c("Group 2 Model", round(fitmeasures(g2.fit, 
                                                  c("chisq", "df", "cfi",
                                                    "rmsea", "srmr", "tli")),3))
 kable(table_fit)
@@ -109,7 +109,7 @@ configural.fit <- cfa(model = overall.model,
                       data = c_data,
                       meanstructure = TRUE,
                       estimator = "DWLS",
-                      group = "Country")
+                      group = "group")
 sum_conf <- summary(configural.fit,
         standardized = TRUE, 
         rsquare = TRUE, 
@@ -129,7 +129,7 @@ metric.fit <- cfa(model = overall.model,
                   data = c_data,
                   meanstructure = TRUE,
                   estimator = "DWLS",
-                  group = "Country",
+                  group = "group",
                   group.equal = c("loadings"))
 sum_metric <- summary(metric.fit,
         standardized = TRUE, 
@@ -149,7 +149,7 @@ scalar.fit <- cfa(model = overall.model,
                   data = c_data,
                   estimator = "DWLS",
                   meanstructure = TRUE,
-                  group = "Country",
+                  group = "group",
                   group.equal = c("loadings", "intercepts"))
 summary(scalar.fit,
         standardized = TRUE, 
@@ -168,7 +168,7 @@ strict.fit <- cfa(model = overall.model,
                   data = c_data,
                   meanstructure = TRUE,
                   estimator = "DWLS",
-                  group = "Country",
+                  group = "group",
                   group.equal = c("loadings", "intercepts", "residuals"))
 summary(strict.fit,
         standardized = TRUE, 
