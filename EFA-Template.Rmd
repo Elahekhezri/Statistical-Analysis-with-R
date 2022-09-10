@@ -1,5 +1,5 @@
 ---
-title: "Template for Running Exploratory Factor Analysis"
+title: "Template for Exploratory Factor Analysis"
 author: "Elaheh Khezri"
 date: '2022-08-07'
 output: html_document
